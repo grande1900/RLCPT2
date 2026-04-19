@@ -10,7 +10,7 @@
 @persist [PTHProps PTHOriginalColors]:array # prop to holo
 @persist Task_Speed TaskClk [Tasks Tasks2 TaskLoops TaskDelayed Task2Delayed]:table # tasks
 @persist BoundingBox:vector Axis InputDisabled # misc
-#New in 3.1:
+#New in 3.0:
 @persist HashIncrementer
 
 if(first() | duped()){ entity():setName("RATTLECAN 3 | NOT STARTED"), entity():setColor(vec(255,255,0)), entity():setMaterial("models/shiny"),runOnChat(0),runOnLast(0),runOnKeys(owner(),0),runOnFile(0),runOnHTTP(0), if(duped()){ exit() } }
@@ -41,6 +41,9 @@ if(clk("start")){
     PLANE_MODEL = "models/sprops/rectangles_thin/size_3/rect_24x24x1_5.mdl"
     
     HashIncrementer = 100
+    
+    # Changelog for Beta V3.0.1 
+    # Fixed a problem with depreciated Wire features where Rattlecan could not read files to see if it was saved.
     
     # Changelog for Beta V3.0.0 "Patch Unit"
     # Refactored the clipping function to be more easily understood.
@@ -446,7 +449,6 @@ if(clk("start")){
         rcprint("info","Sucessfully started. Loading stored scheme from dupe.")
         addTask(1,"schemeRender")
         # checking if dupe file exists
-        runOnList(1)
         fileList(">e2shared/rattlecan2/")
     }
     
@@ -3433,13 +3435,6 @@ elseif(keyClk(O)  ==  1){ # only positive presses
 elseif(sentCommandClk()){
     addTask(2,"handleCommand",array(O:lastSaid()))
 }
-elseif(fileListClk()){
-    local Files = fileReadList()
-    local Filename = Scheme["MISC",table]["filename",string] + ".txt"
-    if(!Filename:validFrom(Files)){
-        rcprint("warning","Dupe loaded file \"" + Filename + "\" wasn't found in your saves folder! You should probably save it.")
-    }
-}
 elseif(fileClk()){
     if(RCMode  ==  "LOAD"){
         local Status = fileStatus()
@@ -3592,6 +3587,15 @@ event chat(Ply:entity, Said:string, Team:number){
         hideChat(1)
         print(Scheme["OBJECTS",table]:keys())
         
+    }
+    
+}
+
+event fileList(Path:string,Content:array){
+    
+    local Filename = Scheme["MISC",table]["filename",string] + ".txt"
+    if(!Filename:validFrom(Content)){
+        rcprint("warning","Dupe loaded file \"" + Filename + "\" wasn't found in your saves folder! You should probably save it.")
     }
     
 }
